@@ -28,6 +28,7 @@ mkdir "$BUILD_DIR"
 
 echo "Copying template for packaging"
 cp -r "$(dirname $0)/drmemory_template" "$BUILD_DIR/drmemory"
+mkdir "$BUILD_DIR/drmemory/opt"
 
 echo "Writing version...."
 sed "s#%version%#$VERSION#g" -i "$BUILD_DIR/drmemory/DEBIAN/control" "$BUILD_DIR/drmemory/usr/bin/drmemory"
