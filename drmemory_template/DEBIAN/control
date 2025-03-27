@@ -1,0 +1,9 @@
+Package: drmemory
+Version: %version%
+Section: debug, devel
+Depends: gdb, libunwind8
+Priority: optional
+Architecture: amd64
+Maintainer: Ramadan Ali <rot13:ezqa@ezqa.ny>
+Homepage: https://drmemory.org/
+Description: Memory monitoring tool

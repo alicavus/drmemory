@@ -1,0 +1,11 @@
+#! /bin/bash
+
+DRMEMORY_PATH="/opt/DrMemory-Linux-%version%"
+BIN_PATH="/bin64"
+
+PATH="${DRMEMORY_PATH}${BIN_PATH}:$PATH"
+
+export PATH
+
+${DRMEMORY_PATH}${BIN_PATH}/drmemory "$@"
+

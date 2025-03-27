@@ -1,0 +1,47 @@
+#! /bin/bash -e
+
+[[ `whoami` == "root" ]] && exit
+
+CURR_VERSION="2.6.0"
+
+
+[[ -z $* ]] && VERSION=$CURR_VERSION || VERSION="$*"
+
+echo "Installing missing build dependencies"
+[[ -z `command -v curl` ]] && sudo apt install curl
+[[ -z `command -v bsdtar` ]] && sudo apt install libarchive-tools
+
+URL="https://github.com/DynamoRIO/drmemory/releases/download/release_${VERSION}/DrMemory-Linux-${VERSION}.tar.gz"
+
+if [[ `curl -LI $URL | grep "^HTTP" | tail -n 1 | cut -f2 -d\ ` != "200" ]]; then
+    ALTURL="${URL/release_/cronbuild-}"
+    if  [[ `curl -LI $ALTURL | grep "^HTTP" | tail -n 1 | cut -f2 -d\ ` == "200" ]]; then URL="$ALTURL"
+    else echo "Source file not found: $URL" && exit
+    fi
+fi
+
+BUILD_DIR="$(pwd)/build_drmemory"
+
+[[ -e "$BUILD_DIR" ]] && rm -rf "$BUILD_DIR"
+
+mkdir "$BUILD_DIR"
+
+echo "Copying template for packaging"
+cp -r "$(dirname $0)/drmemory_template" "$BUILD_DIR/drmemory"
+
+echo "Writing version...."
+sed "s#%version%#$VERSION#g" -i "$BUILD_DIR/drmemory/DEBIAN/control" "$BUILD_DIR/drmemory/usr/bin/drmemory"
+
+echo "Making drmemory executable"
+chmod +x "$BUILD_DIR/drmemory/usr/bin/drmemory"
+
+echo "Fetching binary files"
+curl -L -o - "$URL" | bsdtar -xf - -C "$BUILD_DIR/drmemory/opt"
+
+echo "Building deb package"
+dpkg-deb -Zxz --root-owner-group --build "$BUILD_DIR/drmemory" "$(pwd)/drmemory-$VERSION.deb"
+
+echo "Cleaning build directory"
+rm -rf "$BUILD_DIR"
+
+
